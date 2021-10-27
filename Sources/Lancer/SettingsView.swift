@@ -19,12 +19,24 @@ struct SettingsView: View {
     }
     
     var body: some View {
-        HStack {
-            UserList(vm)
+        NavigationView {
+            List(vm.commands) { command in
+                NavigationLink(destination: destination(command), label: {
+                    SettingsView.Cell(command)
+                })
+                .frame(height: 50)
+                Divider()
+                    .frame(height: 0.5)
+            }
             .frame(width: 220)
-            Content(vm.selectedCommend)
+            .buttonStyle(PlainButtonStyle())
         }
         .frame(minWidth: 600, minHeight: 400)
+    }
+    
+    @ViewBuilder
+    func destination(_ command: CommandViewModel) -> some View {
+        AnyView(Content(command))
     }
     
 }
@@ -33,48 +45,31 @@ private extension SettingsView {
     
     struct Content: View {
         
-        @ObservedObject
         private var vm: CommandViewModel
-
+        
+        @State
+        var title: String
+        @State
+        var content: String
+        
         init(_ vm: CommandViewModel) {
             self.vm = vm
+            self._title = .init(initialValue: vm.title)
+            self._content = .init(initialValue: vm.content)
         }
         
         var body: some View {
             VStack {
-                TextField("Title", text: $vm.title)
-                TextEditor(text:  $vm.content)
+                TextField("Title", text: $title)
+                    .onChange(of: title, perform: { value in
+                        vm.title = value
+                    })
+
+                TextEditor(text: $content)
+                    .onChange(of: content, perform: { value in
+                        vm.content = value
+                    })
             }
-        }
-        
-    }
-    
-    struct UserList: View {
-        
-        @ObservedObject
-        private var vm: MyCommands
-        
-        init(_ vm: MyCommands) {
-            self.vm = vm
-        }
-        
-        var body: some View {
-            
-            VStack {
-                HStack {
-                    Text("user")
-                        .font(.body)
-                    Spacer()
-                }
-                Divider()
-                ScrollView(.vertical, showsIndicators: false) {
-                    ForEach(vm.commands) { command in
-                        SettingsView.Cell(command, in: vm)
-                    }
-                }
-            }
-            .padding()
-            
         }
         
     }
@@ -83,31 +78,33 @@ private extension SettingsView {
         
         @ObservedObject
         var model: CommandViewModel
-        let vm: MyCommands
         
-        init(_ model: CommandViewModel, in vm: MyCommands) {
+        init(_ model: CommandViewModel) {
             self.model = model
-            self.vm = vm
         }
         
         var body: some View {
             VStack {
                 HStack {
-                    SFSymbol2.listBulletRectangle.convert().foregroundColor(Color.white)
+                    SFSymbol2.listBulletRectangle
+                        .convert()
+                        .foregroundColor(Color.white)
+                        .font(Font.system(size: 32))
+                        .fixedSize()
                     Spacer()
                         .frame(width: 8.0)
-                    Text(model.title)
+                    VStack(alignment: .leading) {
+                        Text(model.title)
+                            .font(Font.system(size: 18, weight: .medium))
+                        Text(model.content)
+                            .font(Font.system(size: 12, weight: .light))
+                    }
                     Spacer()
                 }
                 Spacer()
                     .frame(height: 8.0)
-                Divider()
             }
             .font(.title)
-            .background(model.isSelected ? Color.gray.opacity(0.2) : Color.clear)
-            .onTapGesture {
-                vm.select(model)
-            }
         }
     }
     

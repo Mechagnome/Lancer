@@ -19,12 +19,13 @@ class CommandViewModel: ObservableObject, Identifiable {
         }
     }
     
+    @Published
     var title: String = "" {
         didSet {
             value.title = title
         }
     }
-    
+    @Published
     var content: String = "" {
         didSet {
             value.content = content
