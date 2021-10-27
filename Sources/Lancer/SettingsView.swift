@@ -8,31 +8,24 @@
 import SwiftUI
 import Stem
 
+
 struct SettingsView: View {
     
     @ObservedObject
     private var vm: MyCommands
-    @State
-    var selectedCommand: Command?
     
     init(_ vm: MyCommands) {
         self.vm = vm
-        self.selectedCommand = vm.commands.first
     }
     
     var body: some View {
         HStack {
-            UserList(vm, selectedCommand: selectedCommand) { command in
-                selectedCommand = command
-            }
+            UserList(vm)
             .frame(width: 220)
-            Content(selectedCommand)
+            Content(vm.selectedCommend)
         }
-        .frame(minWidth: 600, minHeight: 600)
+        .frame(minWidth: 600, minHeight: 400)
     }
-    
-    
-    
     
 }
 
@@ -40,23 +33,17 @@ private extension SettingsView {
     
     struct Content: View {
         
-        private var model: Command?
-        @State
-        private var content: String = ""
-        @State
-        private var title: String = ""
+        @ObservedObject
+        private var vm: CommandViewModel
 
-
-        init(_ model: Command?) {
-            self.model = model
-            self.content = model?.content ?? ""
-            self.title = model?.title ?? ""
+        init(_ vm: CommandViewModel) {
+            self.vm = vm
         }
         
         var body: some View {
             VStack {
-                TextField("Title", text: $title)
-                TextEditor(text: $content)
+                TextField("Title", text: $vm.title)
+                TextEditor(text:  $vm.content)
             }
         }
         
@@ -66,15 +53,9 @@ private extension SettingsView {
         
         @ObservedObject
         private var vm: MyCommands
-        let selectedEvent: (Command) -> Void
-        let selectedCommand: Command?
         
-        init(_ vm: MyCommands,
-             selectedCommand: Command?,
-             selectedEvent: @escaping (Command) -> Void) {
+        init(_ vm: MyCommands) {
             self.vm = vm
-            self.selectedEvent = selectedEvent
-            self.selectedCommand = selectedCommand
         }
         
         var body: some View {
@@ -88,9 +69,7 @@ private extension SettingsView {
                 Divider()
                 ScrollView(.vertical, showsIndicators: false) {
                     ForEach(vm.commands) { command in
-                        SettingsView.Cell(command,
-                                           isSelected: command == selectedCommand,
-                                           selectedEvent: selectedEvent)
+                        SettingsView.Cell(command, in: vm)
                     }
                 }
             }
@@ -102,14 +81,13 @@ private extension SettingsView {
     
     struct Cell: View {
         
-        let model: Command
-        let selectedEvent: (Command) -> Void
-        let isSelected: Bool
+        @ObservedObject
+        var model: CommandViewModel
+        let vm: MyCommands
         
-        init(_ model: Command, isSelected: Bool, selectedEvent: @escaping (Command) -> Void) {
+        init(_ model: CommandViewModel, in vm: MyCommands) {
             self.model = model
-            self.isSelected = isSelected
-            self.selectedEvent = selectedEvent
+            self.vm = vm
         }
         
         var body: some View {
@@ -126,9 +104,9 @@ private extension SettingsView {
                 Divider()
             }
             .font(.title)
-            .background(isSelected ? Color.gray.opacity(0.2) : Color.clear)
+            .background(model.isSelected ? Color.gray.opacity(0.2) : Color.clear)
             .onTapGesture {
-                selectedEvent(model)
+                vm.select(model)
             }
         }
     }
@@ -139,10 +117,14 @@ struct MyCommandView_Previews: PreviewProvider {
     
     static var previews: some View {
         let vm = MyCommands()
-        let list = (0...20).map({ Command.init(id: .init(), title: "commands\($0)", content: "commands\($0)") })
+        let list = (0...20)
+            .map({ Command(id: .init(), title: "commands\($0)", content: "commands\($0)") })
+            .map({ CommandViewModel($0, isSelected: false) })
+
         vm.commands.append(contentsOf: list)
+        
         return SettingsView(vm)
-            .frame(width: 600, height: 600)
+            .frame(width: 600, height: 400)
     }
     
 }

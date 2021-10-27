@@ -20,7 +20,9 @@ public struct Lancer: AlliancesApp {
     
     public var settingsView: AnyView? {
         let vm = MyCommands()
-        let list = (0...20).map({ Command.init(id: .init(), title: "commands\($0)", content: "commands\($0)") })
+        let list = (0...20)
+            .map({ Command(id: .init(), title: "commands\($0)", content: "commands\($0)") })
+            .map({ CommandViewModel($0, isSelected: false) })
         vm.commands.append(contentsOf: list)
         
         return AnyView(SettingsView(vm))
