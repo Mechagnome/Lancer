@@ -19,7 +19,11 @@ public struct Lancer: AlliancesApp {
     }
     
     public var settingsView: AnyView? {
-        .init(SettingsView(.init()))
+        let vm = MyCommands()
+        let list = (0...20).map({ Command.init(id: .init(), title: "commands\($0)", content: "commands\($0)") })
+        vm.commands.append(contentsOf: list)
+        
+        return AnyView(SettingsView(vm))
     }
     
     public func run() throws {

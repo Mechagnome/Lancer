@@ -28,6 +28,7 @@ struct SettingsView: View {
             .frame(width: 220)
             Content(selectedCommand)
         }
+        .frame(minWidth: 600, minHeight: 600)
     }
     
     
@@ -57,7 +58,6 @@ private extension SettingsView {
                 TextField("Title", text: $title)
                 TextEditor(text: $content)
             }
-            .frame(minWidth: 600, minHeight: 600)
         }
         
     }
