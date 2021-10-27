@@ -8,8 +8,8 @@ public struct Lancer: AlliancesApp {
     public var core: AlliancesUICore = .init()
 
     public let configuration: AlliancesConfiguration
-    public let canRun: Bool = false
-    
+    public var canRun: Bool = false
+
     public var name: String = "Lancer"
     
     public var tasks: [AlliancesApp] = []
@@ -19,7 +19,7 @@ public struct Lancer: AlliancesApp {
     }
     
     public var settingsView: AnyView? {
-        .init(SettingsView())
+        .init(SettingsView(.init()))
     }
     
     public func run() throws {

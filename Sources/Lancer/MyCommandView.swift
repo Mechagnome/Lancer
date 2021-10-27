@@ -8,7 +8,7 @@
 import SwiftUI
 import Stem
 
-struct MyCommandView: View {
+struct SettingsView: View {
     
     @ObservedObject
     private var vm: MyCommands
@@ -35,7 +35,7 @@ struct MyCommandView: View {
     
 }
 
-private extension MyCommandView {
+private extension SettingsView {
     
     struct Content: View {
         
@@ -57,7 +57,7 @@ private extension MyCommandView {
                 TextField("Title", text: $title)
                 TextEditor(text: $content)
             }
-            
+            .frame(minWidth: 600, minHeight: 600)
         }
         
     }
@@ -88,7 +88,7 @@ private extension MyCommandView {
                 Divider()
                 ScrollView(.vertical, showsIndicators: false) {
                     ForEach(vm.commands) { command in
-                        MyCommandView.Cell(command,
+                        SettingsView.Cell(command,
                                            isSelected: command == selectedCommand,
                                            selectedEvent: selectedEvent)
                     }
@@ -141,7 +141,7 @@ struct MyCommandView_Previews: PreviewProvider {
         let vm = MyCommands()
         let list = (0...20).map({ Command.init(id: .init(), title: "commands\($0)", content: "commands\($0)") })
         vm.commands.append(contentsOf: list)
-        return MyCommandView(vm)
+        return SettingsView(vm)
             .frame(width: 600, height: 600)
     }
     
