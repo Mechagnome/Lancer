@@ -1,0 +1,25 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "Alliances",
+        "repositoryURL": "https://github.com/Mechagnome/Alliances",
+        "state": {
+          "branch": null,
+          "revision": "36d56765242d2896a3c867e54484687bc2235e50",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "package": "Stem",
+        "repositoryURL": "https://github.com/linhay/Stem.git",
+        "state": {
+          "branch": null,
+          "revision": "8f6444bfc6f36af24994eb435369f144c3236e05",
+          "version": "1.0.1"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
