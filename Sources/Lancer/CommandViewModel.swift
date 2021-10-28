@@ -7,36 +7,29 @@
 
 import Foundation
 import Combine
-import SwiftUI
 
 class CommandViewModel: ObservableObject, Identifiable {
     
     var value: Command
     
-    var isSelected: Bool {
-        didSet {
-            objectWillChange.send()
-        }
-    }
-    
     @Published
-    var title: String = "" {
+    var title: String {
         didSet {
             value.title = title
         }
     }
+    
     @Published
-    var content: String = "" {
+    var content: String {
         didSet {
             value.content = content
         }
     }
     
-    init(_ value: Command, isSelected: Bool) {
+    init(_ value: Command) {
         self.title = value.title
         self.content = value.content
         self.value = value
-        self.isSelected = isSelected
     }
     
     

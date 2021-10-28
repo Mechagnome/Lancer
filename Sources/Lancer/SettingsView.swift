@@ -113,7 +113,7 @@ struct MyCommandView_Previews: PreviewProvider {
         let vm = MyCommands()
         let list = (0...5)
             .map({ Command(id: .init(), title: "commands\($0)", content: "commands\($0)") })
-            .map({ CommandViewModel($0, isSelected: false) })
+            .map({ CommandViewModel($0) })
 
         vm.commands.append(contentsOf: list)
         
