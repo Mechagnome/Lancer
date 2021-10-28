@@ -21,7 +21,9 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             List(vm.commands) { command in
-                NavigationLink(destination: destination(command), label: {
+                NavigationLink(destination: {
+                    Content(command)
+                }, label: {
                     SettingsView.Cell(command)
                 })
                 .frame(height: 50)
@@ -32,11 +34,6 @@ struct SettingsView: View {
             .buttonStyle(PlainButtonStyle())
         }
         .frame(minWidth: 600, minHeight: 400)
-    }
-    
-    @ViewBuilder
-    func destination(_ command: CommandViewModel) -> some View {
-        AnyView(Content(command))
     }
     
 }
@@ -114,7 +111,7 @@ struct MyCommandView_Previews: PreviewProvider {
     
     static var previews: some View {
         let vm = MyCommands()
-        let list = (0...20)
+        let list = (0...5)
             .map({ Command(id: .init(), title: "commands\($0)", content: "commands\($0)") })
             .map({ CommandViewModel($0, isSelected: false) })
 
