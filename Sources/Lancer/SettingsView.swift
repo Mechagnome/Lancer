@@ -7,7 +7,18 @@
 
 import SwiftUI
 import Stem
+import AppKit
 
+extension NSTextView {
+    
+    open override var frame: CGRect {
+        didSet {
+            backgroundColor = .clear
+            drawsBackground = true
+        }
+    }
+    
+}
 
 struct SettingsView: View {
     
@@ -22,11 +33,11 @@ struct SettingsView: View {
         NavigationView {
             List(vm.commands) { command in
                 NavigationLink(destination: {
-                    Content(command)
+                    STLazyView(Content(command))
                 }, label: {
                     SettingsView.Cell(command)
                 })
-                .frame(height: 50)
+                    .frame(height: 50)
                 Divider()
                     .frame(height: 0.5)
             }
@@ -56,17 +67,34 @@ private extension SettingsView {
         }
         
         var body: some View {
-            VStack {
-                TextField("Title", text: $title)
-                    .onChange(of: title, perform: { value in
-                        vm.title = value
-                    })
-
-                TextEditor(text: $content)
-                    .onChange(of: content, perform: { value in
-                        vm.content = value
-                    })
+            VStack(alignment: .leading) {
+                Group {
+                    Text("Title")
+                        .font(.title)
+                        .fontWeight(.semibold)
+                    TextField("Title", text: $title)
+                        .onChange(of: title, perform: { value in
+                            vm.title = value
+                        })
+                        .font(.title3)
+                    Text("Code")
+                        .font(.title)
+                        .fontWeight(.semibold)
+                }
+                
+                Group {
+                    TextEditor(text: $content)
+                        .background(Color.gray)
+                        .onChange(of: content, perform: { value in
+                            vm.content = value
+                        })
+                        .font(.title3)
+                }
+                .padding(8)
+                .background(Color.gray)
+                .cornerRadius(8)
             }
+            .padding()
         }
         
     }
@@ -83,7 +111,7 @@ private extension SettingsView {
         var body: some View {
             VStack {
                 HStack {
-                    SFSymbol2.listBulletRectangle
+                    SFSymbol.listBulletRectangle
                         .convert()
                         .foregroundColor(Color.white)
                         .font(Font.system(size: 32))
@@ -114,7 +142,7 @@ struct MyCommandView_Previews: PreviewProvider {
         let list = (0...5)
             .map({ Command(id: .init(), title: "commands\($0)", content: "commands\($0)") })
             .map({ CommandViewModel($0) })
-
+        
         vm.commands.append(contentsOf: list)
         
         return SettingsView(vm)

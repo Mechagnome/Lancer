@@ -14,7 +14,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/Mechagnome/Alliances", from: "1.0.0"),
-        .package(url: "https://github.com/linhay/Stem.git", from: "1.0.1")
+        .package(url: "https://github.com/linhay/Stem.git", .branch("master"))
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
