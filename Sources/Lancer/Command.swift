@@ -8,7 +8,7 @@
 import Foundation
 
 struct Command: Codable, Equatable, Identifiable {
-    
+        
     var id: UUID
     var title: String
     var folder: URL?

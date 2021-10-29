@@ -25,26 +25,76 @@ struct SettingsView: View {
     @ObservedObject
     private var vm: MyCommands
     
+    @State
+    private var selection: UUID? = nil
+
     init(_ vm: MyCommands) {
         self.vm = vm
     }
     
     var body: some View {
-        NavigationView {
-            List(vm.commands) { command in
-                NavigationLink(destination: {
-                    STLazyView(Content(command))
-                }, label: {
-                    SettingsView.Cell(command)
-                })
-                    .frame(height: 50)
-                Divider()
-                    .frame(height: 0.5)
+        VStack {
+            NavigationView {
+                List(vm.commands) { command in
+                    NavigationLink(tag: command.value.id, selection: $selection) {
+                        STLazyView(Content(command))
+                    } label: {
+                        SettingsView.Cell(command)
+
+                    }.frame(height: 50)
+                    Divider()
+                        .frame(height: 0.5)
+                }
+                .frame(width: 220)
+                .buttonStyle(PlainButtonStyle())
             }
-            .frame(width: 220)
-            .buttonStyle(PlainButtonStyle())
+            
+            Divider()
+            
+            HStack(alignment: .center) {
+                
+                HStack(spacing: 4.0) {
+                    SFSymbol.plus.convert()
+                        .font(.title3)
+                    Text("add")
+                        .font(.title2)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 2)
+                .background(Color.gray.opacity(0.5))
+                .cornerRadius(4)
+                .onTapGesture {
+                    let command = vm.addCommand()
+                    selection = command.value.id
+                }
+                
+                if let selected = selection {
+                    HStack(spacing: 4.0) {
+                        SFSymbol.trash.convert()
+                            .font(.title3)
+                        Text("delete")
+                            .font(.title2)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 2)
+                    .background(Color.gray.opacity(0.5))
+                    .cornerRadius(4)
+                    .onTapGesture {
+                        selection = vm.lastItem(by: selected)?.value.id
+                        vm.remove(by: selected)
+                    }
+                }
+                
+                Spacer()
+            }
+            .padding()
+            
+            
         }
         .frame(minWidth: 600, minHeight: 400)
+        .onAppear {
+            self.selection = vm.commands.first?.value.id
+        }
     }
     
 }
@@ -95,6 +145,7 @@ private extension SettingsView {
                             panel.canChooseFiles = false
                             panel.canChooseDirectories = true
                             panel.allowsMultipleSelection = false
+                            panel.directoryURL = vm.folder
                             
                             if panel.runModal() == .OK {
                                 folder = panel.url?.lastPathComponent ?? ""
