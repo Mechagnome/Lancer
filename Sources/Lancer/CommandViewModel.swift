@@ -26,9 +26,17 @@ class CommandViewModel: ObservableObject, Identifiable {
         }
     }
     
+    @Published
+    var folder: URL? {
+        didSet {
+            value.folder = folder
+        }
+    }
+    
     init(_ value: Command) {
         self.title = value.title
         self.content = value.content
+        self.folder = value.folder
         self.value = value
     }
     

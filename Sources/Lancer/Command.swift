@@ -11,14 +11,7 @@ struct Command: Codable, Equatable, Identifiable {
     
     var id: UUID
     var title: String
+    var folder: URL?
     var content: String
-    
-}
-
-struct CommandGroup: Codable, Equatable, Identifiable {
-    
-    var id: UUID
-    let title: String
-    let items: [Command]
     
 }

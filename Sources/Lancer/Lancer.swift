@@ -19,17 +19,43 @@ public struct Lancer: AlliancesApp {
     }
     
     public var settingsView: AnyView? {
-        let vm = MyCommands()
-        let list = (0...20)
-            .map({ Command(id: .init(), title: "commands\($0)", content: "commands\($0)") })
-            .map({ CommandViewModel($0) })
-        vm.commands.append(contentsOf: list)
-        
-        return AnyView(SettingsView(vm))
+        let vm = MyCommands(configuration.settings["commends"] as? [Data] ?? [])
+        return AnyView(SettingsView(vm).onDisappear(perform: {
+            configuration.settings["commends"] = vm.dataForCache
+        }))
     }
     
     public func run() throws {
         
     }
+    
+}
+
+struct Task: AlliancesApp {
+    
+    public static let appInfo: AppInfo = .init(id: "lancer.task", name: "lancer.task")
+    var core: AlliancesUICore = .init()
+    var configuration: AlliancesConfiguration
+    var tasks: [AlliancesApp] = []
+    var canOpenSettings: Bool = false
+    
+    var name: String
+    
+    init(_ configuration: AlliancesConfiguration, name: String) {
+        self.configuration = configuration
+        self.name = name
+    }
+    
+    init(_ configuration: AlliancesConfiguration) {
+        self.configuration = configuration
+        self.name = ""
+    }
+    
+    
+    func run() throws {
+
+        
+    }
+    
     
 }

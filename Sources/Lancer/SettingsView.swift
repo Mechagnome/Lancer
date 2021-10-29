@@ -59,15 +59,18 @@ private extension SettingsView {
         var title: String
         @State
         var content: String
+        @State
+        var folder: String
         
         init(_ vm: CommandViewModel) {
             self.vm = vm
             self._title = .init(initialValue: vm.title)
             self._content = .init(initialValue: vm.content)
+            self._folder = .init(initialValue: vm.folder?.lastPathComponent ?? "")
         }
         
         var body: some View {
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 12.0) {
                 Group {
                     Text("Title")
                         .font(.title)
@@ -77,22 +80,57 @@ private extension SettingsView {
                             vm.title = value
                         })
                         .font(.title3)
-                    Text("Code")
-                        .font(.title)
-                        .fontWeight(.semibold)
+                    
+                    Divider()
                 }
                 
                 Group {
-                    TextEditor(text: $content)
-                        .background(Color.gray)
-                        .onChange(of: content, perform: { value in
-                            vm.content = value
-                        })
-                        .font(.title3)
+                    Text("At Folder")
+                        .font(.title)
+                        .fontWeight(.semibold)
+                    
+                    HStack(alignment: .center, spacing: 12.0) {
+                        Button("Select") {
+                            let panel = NSOpenPanel()
+                            panel.canChooseFiles = false
+                            panel.canChooseDirectories = true
+                            panel.allowsMultipleSelection = false
+                            
+                            if panel.runModal() == .OK {
+                                folder = panel.url?.lastPathComponent ?? ""
+                                vm.folder = panel.url
+                            }
+                        }
+                        
+                        if folder.isEmpty == false {
+                            Text(folder)
+                        }
+                        Spacer()
+                    }
+                    .frame(height: 30.0)
+                    .font(.body)
+                    
+                    Divider()
                 }
-                .padding(8)
-                .background(Color.gray)
-                .cornerRadius(8)
+                
+                
+                Group {
+                    Text("Code")
+                        .font(.title)
+                        .fontWeight(.semibold)
+                    
+                    Group {
+                        TextEditor(text: $content)
+                            .background(Color.gray)
+                            .onChange(of: content, perform: { value in
+                                vm.content = value
+                            })
+                            .font(.title3)
+                    }
+                    .padding(8)
+                    .background(Color.gray)
+                    .cornerRadius(8)
+                }
             }
             .padding()
         }
@@ -120,8 +158,10 @@ private extension SettingsView {
                         .frame(width: 8.0)
                     VStack(alignment: .leading) {
                         Text(model.title)
+                            .lineLimit(1)
                             .font(Font.system(size: 18, weight: .medium))
-                        Text(model.content)
+                        Text("at: " + (model.folder?.path ?? ""))
+                            .lineLimit(1)
                             .font(Font.system(size: 12, weight: .light))
                     }
                     Spacer()
@@ -138,15 +178,17 @@ private extension SettingsView {
 struct MyCommandView_Previews: PreviewProvider {
     
     static var previews: some View {
-        let vm = MyCommands()
+        let vm = MyCommands([])
         let list = (0...5)
-            .map({ Command(id: .init(), title: "commands\($0)", content: "commands\($0)") })
+            .map({ Command(id: .init(),
+                           title: "commands\($0)",
+                           folder: "/user",
+                           content: "commands\($0)") })
             .map({ CommandViewModel($0) })
         
         vm.commands.append(contentsOf: list)
         
         return SettingsView(vm)
-            .frame(width: 600, height: 400)
     }
     
 }
