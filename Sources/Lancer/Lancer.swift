@@ -26,11 +26,17 @@ public class Lancer: AlliancesApp {
     public var settingsView: AnyView? {
         get {
             return AnyView(SettingsView(self.vm, closeEvent: { [weak self] in
-                guard let self = self else { return }
-                self.configuration.settings["commends"] = self.vm.dataForCache
-                self.reload()
+                self?.saveAndReload()
             }))
         }
+    }
+    
+    func saveAndReload() {
+        self.configuration.settings["commends"] = self.vm.dataForCache
+        self.tasks = vm.commands.map { vm in
+            Task(configuration, viewModel: vm)
+        }
+        self.reload()
     }
     
     public func run() throws {
