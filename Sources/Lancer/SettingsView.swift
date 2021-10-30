@@ -120,7 +120,7 @@ struct SettingsView: View {
             self.selection = vm.commands.first?.value.id
         }
         .onDisappear {
-            
+            self.closeEvent()
         }
     }
     
