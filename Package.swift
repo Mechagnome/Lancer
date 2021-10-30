@@ -13,6 +13,8 @@ let package = Package(
             targets: ["Lancer"]),
     ],
     dependencies: [
+        
+        .package(url: "https://github.com/kareman/SwiftShell", from: "5.0.0"),
         .package(url: "https://github.com/Mechagnome/Alliances", from: "1.0.0"),
         .package(url: "https://github.com/linhay/Stem.git", .branch("master"))
     ],
@@ -22,6 +24,7 @@ let package = Package(
         .target(
             name: "Lancer",
             dependencies: [
+                .product(name: "SwiftShell", package: "SwiftShell"),
                 .product(name: "Stem", package: "Stem"),
                 .product(name: "Alliances", package: "Alliances")
             ]),

@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import SwiftShell
 
 class CommandViewModel: ObservableObject, Identifiable {
     
@@ -42,5 +43,24 @@ class CommandViewModel: ObservableObject, Identifiable {
         self.value = value
     }
     
+    
+    @discardableResult
+    func run() throws -> String {
+        var context = CustomContext(main)
+        guard let currentdirectory = self.folder?.path else {
+            return ""
+        }
+        context.currentdirectory = currentdirectory
+        let output = context.run(bash: content)
+        
+        if output.succeeded {
+            return output.stdout
+        } else {
+            if output.stderror.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                try context.runAndPrint(bash: content)
+            }
+            throw NSError()
+        }
+    }
     
 }
