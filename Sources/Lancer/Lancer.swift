@@ -2,7 +2,7 @@
 import Alliances
 import SwiftUI
 
-public struct Lancer: AlliancesApp {
+public class Lancer: AlliancesApp {
     
     public static let appInfo: AppInfo = .init(id: "Lancer", name: "Lancer", icon: nil, summary: "Lancer")
     public var core: AlliancesUICore = .init()
@@ -12,20 +12,25 @@ public struct Lancer: AlliancesApp {
     
     public var name: String = "Lancer"
     
-    public var tasks: [AlliancesApp]
+    public var tasks: [AlliancesApp] = []
     
-    public init(_ configuration: AlliancesConfiguration) {
+    lazy var vm = MyCommands(configuration.settings["commends"] as? [Data] ?? [])
+    
+    required public init(_ configuration: AlliancesConfiguration) {
         self.configuration = configuration
-        tasks = MyCommands(configuration.settings["commends"] as? [Data] ?? []).commands.map { vm in
+        self.tasks = vm.commands.map { vm in
             Task(configuration, viewModel: vm)
         }
     }
     
     public var settingsView: AnyView? {
-        let vm = MyCommands(configuration.settings["commends"] as? [Data] ?? [])
-        return AnyView(SettingsView(vm).onDisappear(perform: {
-            configuration.settings["commends"] = vm.dataForCache
-        }))
+        get {
+            return AnyView(SettingsView(self.vm, closeEvent: { [weak self] in
+                guard let self = self else { return }
+                self.configuration.settings["commends"] = self.vm.dataForCache
+                self.reload()
+            }))
+        }
     }
     
     public func run() throws {

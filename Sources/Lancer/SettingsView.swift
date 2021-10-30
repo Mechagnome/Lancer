@@ -28,8 +28,11 @@ struct SettingsView: View {
     @State
     private var selection: UUID? = nil
 
-    init(_ vm: MyCommands) {
+    let closeEvent: () -> Void
+    
+    init(_ vm: MyCommands, closeEvent: @escaping () -> Void) {
         self.vm = vm
+        self.closeEvent = closeEvent
     }
     
     var body: some View {
@@ -66,7 +69,7 @@ struct SettingsView: View {
                         break
                     }
                 })
-                .frame(width: 220)
+                .frame(minWidth: 220)
                 .buttonStyle(PlainButtonStyle())
             }
             
@@ -115,6 +118,9 @@ struct SettingsView: View {
         .frame(minWidth: 600, minHeight: 400)
         .onAppear {
             self.selection = vm.commands.first?.value.id
+        }
+        .onDisappear {
+            
         }
     }
     
@@ -260,7 +266,7 @@ struct MyCommandView_Previews: PreviewProvider {
         
         vm.commands.append(contentsOf: list)
         
-        return SettingsView(vm)
+        return SettingsView(vm, closeEvent: {})
     }
     
 }
