@@ -24,7 +24,7 @@ struct SettingsView: View {
     
     @ObservedObject
     private var vm: MyCommands
-    
+
     @State
     private var selection: UUID? = nil
 
@@ -45,6 +45,27 @@ struct SettingsView: View {
                     Divider()
                         .frame(height: 0.5)
                 }
+                .onDeleteCommand(perform: {
+                    guard let id = selection else {
+                        return
+                    }
+                    vm.remove(by: id)
+                })
+                .onMoveCommand(perform: { direction in
+                    guard let id = selection else {
+                        return
+                    }
+                    switch direction {
+                    case .down:
+                        selection = vm.nextItem(by: id)?.value.id
+                    case .up:
+                        selection = vm.lastItem(by: id)?.value.id
+                    case .left, .right:
+                        break
+                    @unknown default:
+                        break
+                    }
+                })
                 .frame(width: 220)
                 .buttonStyle(PlainButtonStyle())
             }

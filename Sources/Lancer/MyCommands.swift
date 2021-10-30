@@ -33,9 +33,20 @@ class MyCommands: ObservableObject {
             return nil
         }
         if index == 0 {
-            return commands.value(at: 1)
+            return commands.first
         } else {
             return commands.value(at: max(index - 1, 0))
+        }
+    }
+    
+    func nextItem(by id: UUID) -> CommandViewModel? {
+        guard let index = index(by: id) else {
+            return nil
+        }
+        if index == commands.count - 1 {
+            return commands.last
+        } else {
+            return commands.value(at: max(index + 1, 0))
         }
     }
         

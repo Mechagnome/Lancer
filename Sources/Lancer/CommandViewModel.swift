@@ -12,6 +12,8 @@ class CommandViewModel: ObservableObject, Identifiable {
     
     var value: Command
     
+    var id: UUID { value.id }
+    
     @Published
     var title: String {
         didSet {
