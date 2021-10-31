@@ -55,12 +55,11 @@ class CommandViewModel: ObservableObject, Identifiable {
         
         if output.succeeded {
             return output.stdout
-        } else {
-            if output.stderror.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                try context.runAndPrint(bash: content)
-            }
-            throw NSError()
+        } else if output.stderror.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            try context.runAndPrint(bash: content)
         }
+        
+        return ""
     }
     
 }
