@@ -54,6 +54,7 @@ struct Task: AlliancesApp {
     var canOpenSettings: Bool = false
     
     var name: String { viewModel.title }
+    var remark: String? { "at: \(viewModel.folder?.lastPathComponent ?? "")" }
     
     let viewModel: CommandViewModel
     
