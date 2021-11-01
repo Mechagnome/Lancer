@@ -55,11 +55,11 @@ class CommandViewModel: ObservableObject, Identifiable {
         
         if output.succeeded {
             return output.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
-        } else if output.stderror.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            try context.runAndPrint(bash: content)
+        } else if let error = output.error {
+            throw error
+        } else {
+            return ""
         }
-        
-        return ""
     }
     
 }

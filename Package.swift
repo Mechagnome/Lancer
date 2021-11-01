@@ -30,6 +30,7 @@ let package = Package(
             ]),
         .testTarget(
             name: "LancerTests",
-            dependencies: ["Lancer"]),
+            dependencies: ["Lancer",
+                           .product(name: "Stem", package: "Stem")]),
     ]
 )
