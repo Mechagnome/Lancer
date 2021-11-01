@@ -14,6 +14,8 @@ struct ActionButton: View {
     let name: String
     let action: () -> Void
     
+    @State
+    private var tapDown: Bool = false
     
     var body: some View {
         HStack(spacing: 4.0) {
@@ -24,11 +26,21 @@ struct ActionButton: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 2)
-        .background(Color.gray.opacity(0.5))
+        .background(Color.gray.opacity(tapDown ? 1 : 0.5))
         .cornerRadius(4)
-        .onTapGesture {
-            action()
-        }
+        .gesture(tapGesture)
+        
+    }
+    
+    var tapGesture: some Gesture {
+        DragGesture(minimumDistance: 0, coordinateSpace: .local)
+            .onChanged({ _ in
+                tapDown = true
+            })
+            .onEnded({ _ in
+                action()
+                tapDown = false
+            })
     }
     
 }

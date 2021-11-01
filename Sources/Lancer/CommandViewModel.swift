@@ -47,10 +47,10 @@ class CommandViewModel: ObservableObject, Identifiable {
     @discardableResult
     func run() throws -> String {
         var context = CustomContext(main)
-        guard let currentdirectory = self.folder?.path else {
-            return ""
+        if let currentdirectory = self.folder?.path {
+            context.currentdirectory = currentdirectory
         }
-        context.currentdirectory = currentdirectory
+
         let output = context.run(bash: content)
         
         if output.succeeded {

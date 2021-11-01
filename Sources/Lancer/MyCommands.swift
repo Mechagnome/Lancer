@@ -24,8 +24,14 @@ class MyCommands: ObservableObject {
     
     func index(by id: UUID) -> Int? {
         commands.firstIndex(where: { vm in
-            vm.value.id == id
+            vm.id == id
         })
+    }
+    
+    func item(by id: UUID) -> CommandViewModel? {
+        commands.first { vm in
+            vm.id == id
+        }
     }
     
     func lastItem(by id: UUID) -> CommandViewModel? {
@@ -52,7 +58,7 @@ class MyCommands: ObservableObject {
         
     func remove(by id: UUID) {
         commands = commands.filter({ vm in
-            vm.value.id != id
+            vm.id != id
         })
     }
     

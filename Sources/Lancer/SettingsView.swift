@@ -24,208 +24,151 @@ struct SettingsView: View {
     
     @State
     private var selection: UUID? = nil
-
+    
     @ObservedObject
     var vm: MyCommands
     let saveEvent: () -> Void
     
-    var body: some View {
-        VStack {
-            NavigationView {
-                List(vm.commands) { command in
-                    NavigationLink(tag: command.value.id, selection: $selection) {
-                        STLazyView(Content(command))
-                    } label: {
-                        SettingsView.Cell(command)
-
-                    }.frame(height: 50)
-                    Divider()
-                        .frame(height: 0.5)
-                }
-                .onDeleteCommand(perform: {
-                    guard let id = selection else {
-                        return
-                    }
-                    vm.remove(by: id)
-                })
-                .onMoveCommand(perform: { direction in
-                    guard let id = selection else {
-                        return
-                    }
-                    switch direction {
-                    case .down:
-                        selection = vm.nextItem(by: id)?.value.id
-                    case .up:
-                        selection = vm.lastItem(by: id)?.value.id
-                    case .left, .right:
-                        break
-                    @unknown default:
-                        break
-                    }
-                })
-                .frame(minWidth: 220)
-                .buttonStyle(PlainButtonStyle())
+    enum Prompt {
+        case error(String)
+        case success(String)
+        case message(String)
+    }
+    
+    @State
+    var prompt: Prompt?
+    
+    var toolbar: some View {
+        HStack(alignment: .center) {
+            ActionButton(icon: .plus, name: "add") {
+                let command = vm.addCommand()
+                selection = command.id
             }
             
-            Divider()
-            
-            HStack(alignment: .center) {
-
-                ActionButton(icon: .plus, name: "add") {
-                    let command = vm.addCommand()
-                    selection = command.value.id
-                }
-                
-                if let selected = selection {
-                    ActionButton(icon: .trash, name: "delete") {
-                        selection = vm.lastItem(by: selected)?.value.id
-                        vm.remove(by: selected)
-                    }
-                }
-                
-                Spacer()
-                
-                ActionButton(icon: .handThumbsup, name: "save") {
-                    self.saveEvent()
+            if let selected = selection {
+                ActionButton(icon: .trash, name: "delete") {
+                    selection = vm.lastItem(by: selected)?.id
+                    vm.remove(by: selected)
                 }
             }
-            .padding()
             
+            Spacer()
+
+            if let selected = selection {
+                ActionButton(icon: .play, name: "run") {
+                    do {
+                        guard let str = try vm.item(by: selected)?.run() else {
+                            return
+                        }
+                        self.prompt = .success(str.isEmpty ? "success" : str)
+                    } catch {
+                        self.prompt = .error(error.localizedDescription)
+                    }
+                }
+            }
             
-        }
-        .frame(minWidth: 600, minHeight: 400)
-        .onAppear {
-            self.selection = vm.commands.first?.value.id
-        }
-        .onDisappear {
-            self.saveEvent()
+            ActionButton(icon: .handThumbsup, name: "save") {
+                self.saveEvent()
+            }
         }
     }
     
-}
-
-private extension SettingsView {
-    
-    struct Content: View {
-        
-        private var vm: CommandViewModel
-        
-        @State
-        var title: String
-        @State
-        var content: String
-        @State
-        var folder: String
-        
-        init(_ vm: CommandViewModel) {
-            self.vm = vm
-            self._title = .init(initialValue: vm.title)
-            self._content = .init(initialValue: vm.content)
-            self._folder = .init(initialValue: vm.folder?.lastPathComponent ?? "")
-        }
-        
-        var body: some View {
-            VStack(alignment: .leading, spacing: 12.0) {
-                Group {
-                    Text("Title")
-                        .font(.title)
-                        .fontWeight(.semibold)
-                    TextField("Title", text: $title)
-                        .onChange(of: title, perform: { value in
-                            vm.title = value
-                        })
-                        .font(.title3)
+    var content: some View {
+        NavigationView {
+            List(vm.commands) { command in
+                NavigationLink(tag: command.id, selection: $selection) {
+                    STLazyView(EditCommandView(command))
+                } label: {
+                    CommandCell(model: command)
                     
-                    Divider()
+                }.frame(height: 50)
+                Divider()
+                    .frame(height: 0.5)
+            }
+            .onDeleteCommand(perform: {
+                guard let id = selection else {
+                    return
                 }
-                
-                Group {
-                    Text("At Folder")
-                        .font(.title)
-                        .fontWeight(.semibold)
-                    
-                    HStack(alignment: .center, spacing: 12.0) {
-                        Button("Select") {
-                            let panel = NSOpenPanel()
-                            panel.canChooseFiles = false
-                            panel.canChooseDirectories = true
-                            panel.allowsMultipleSelection = false
-                            panel.directoryURL = vm.folder
-                            
-                            if panel.runModal() == .OK {
-                                folder = panel.url?.lastPathComponent ?? ""
-                                vm.folder = panel.url
+                vm.remove(by: id)
+            })
+            .onMoveCommand(perform: { direction in
+                guard let id = selection else {
+                    return
+                }
+                switch direction {
+                case .down:
+                    selection = vm.nextItem(by: id)?.id
+                case .up:
+                    selection = vm.lastItem(by: id)?.id
+                case .left, .right:
+                    break
+                @unknown default:
+                    break
+                }
+            })
+            .frame(minWidth: 220)
+            .buttonStyle(PlainButtonStyle())
+        }
+    }
+    
+    var body: some View {
+        ZStack {
+            VStack {
+                content
+                Divider()
+                toolbar
+            }
+            .padding()
+            
+            if let prompt = self.prompt {
+                VStack {
+                    HStack {
+                        Group {
+                            switch prompt {
+                            case .error(let string):
+                                Text(string)
+                                    .fontWeight(.medium)
+                            case .success(let string):
+                                Text(string)
+                                    .fontWeight(.medium)
+                            case .message(let string):
+                                Text(string)
+                                    .fontWeight(.medium)
                             }
-                        }
-                        
-                        if folder.isEmpty == false {
-                            Text(folder)
                         }
                         Spacer()
                     }
-                    .frame(height: 30.0)
-                    .font(.body)
-                    
-                    Divider()
-                }
-                
-                
-                Group {
-                    Text("Code")
-                        .font(.title)
-                        .fontWeight(.semibold)
-                    
-                    Group {
-                        TextEditor(text: $content)
-                            .background(Color.gray)
-                            .onChange(of: content, perform: { value in
-                                vm.content = value
-                            })
-                            .font(.title3)
-                    }
-                    .padding(8)
-                    .background(Color.gray)
+                    .font(.title)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background({ () -> Color in
+                        switch prompt {
+                        case .error:
+                            return Color.red.opacity(0.8)
+                        case .success:
+                            return Color.green.opacity(0.8)
+                        case .message:
+                            return Color.gray.opacity(0.8)
+                        }
+                    }())
                     .cornerRadius(8)
-                }
-            }
-            .padding()
-        }
-        
-    }
-    
-    struct Cell: View {
-        
-        @ObservedObject
-        var model: CommandViewModel
-        
-        init(_ model: CommandViewModel) {
-            self.model = model
-        }
-        
-        var body: some View {
-            VStack {
-                HStack {
-                    SFSymbol.listBulletRectangle
-                        .convert()
-                        .foregroundColor(Color.white)
-                        .font(Font.system(size: 32))
-                        .fixedSize()
-                    Spacer()
-                        .frame(width: 8.0)
-                    VStack(alignment: .leading) {
-                        Text(model.title)
-                            .lineLimit(1)
-                            .font(Font.system(size: 18, weight: .medium))
-                        Text("at: " + (model.folder?.path ?? ""))
-                            .lineLimit(1)
-                            .font(Font.system(size: 12, weight: .light))
-                    }
                     Spacer()
                 }
-                Spacer()
-                    .frame(height: 8.0)
+                .background(Color.black.opacity(0.8))
+                .onTapGesture {
+                    self.prompt = nil
+                }
             }
-            .font(.title)
+            
+        }
+
+        .frame(minWidth: 600, minHeight: 400)
+        .onAppear {
+            self.selection = vm.commands.first?.id
+        }
+        .onDisappear {
+            self.saveEvent()
         }
     }
     
