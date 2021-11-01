@@ -18,7 +18,7 @@ class MyCommands: ObservableObject {
     }
         
     var dataForCache: [Data] {
-        commands.map(\.value).map({ try! JSONEncoder().encode($0) })
+        commands.map(\.value.encodeData)
     }
     
     
@@ -38,22 +38,14 @@ class MyCommands: ObservableObject {
         guard let index = index(by: id) else {
             return nil
         }
-        if index == 0 {
-            return commands.first
-        } else {
-            return commands.value(at: max(index - 1, 0))
-        }
+        return commands.value(at: max(index - 1, 0))
     }
     
     func nextItem(by id: UUID) -> CommandViewModel? {
         guard let index = index(by: id) else {
             return nil
         }
-        if index == commands.count - 1 {
-            return commands.last
-        } else {
-            return commands.value(at: max(index + 1, 0))
-        }
+        return commands.value(at: max(index + 1, 0))
     }
         
     func remove(by id: UUID) {
@@ -62,10 +54,14 @@ class MyCommands: ObservableObject {
         })
     }
     
-    func addCommand() -> CommandViewModel {
-        let new = CommandViewModel(.init(id: .init(), title: "Title", folder: nil, content: "Shell"))
-        commands = [new] + commands
+    func add(_ command: Command, at index: Int) -> CommandViewModel {
+        let new = CommandViewModel(command)
+        commands.insert(new, at: index)
         return new
+    }
+    
+    func addTemplateCommand() -> CommandViewModel {
+        return add(Command(id: .init(), title: "Title", folder: nil, content: "Shell"), at: 0)
     }
     
 }

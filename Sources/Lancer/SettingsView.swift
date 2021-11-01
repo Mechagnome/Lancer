@@ -8,6 +8,7 @@
 import SwiftUI
 import Stem
 import AppKit
+import UniformTypeIdentifiers
 
 extension NSTextView {
     
@@ -41,14 +42,33 @@ struct SettingsView: View {
     var toolbar: some View {
         HStack(alignment: .center) {
             ActionButton(icon: .plus, name: "add") {
-                let command = vm.addCommand()
-                selection = command.id
+                let command = vm.addTemplateCommand()
+                selection = nil
+                Gcd.delay(seconds: 0.1) {
+                    selection = command.id
+                }
             }
             
             if let selected = selection {
+                ActionButton(icon: .docOnDoc, name: "copy") {
+                    guard var item = vm.item(by: selected)?.value,
+                          let index = vm.index(by: selected) else { return }
+                    item.title = item.title + "-copy"
+                    item.id = .init()
+                    self.selection = item.id
+                    Gcd.delay(seconds: 0.1) {
+                        _ = vm.add(item, at: index)
+                    }
+                }
+                
                 ActionButton(icon: .trash, name: "delete") {
-                    selection = vm.lastItem(by: selected)?.id
-                    vm.remove(by: selected)
+                    if let id = vm.nextItem(by: selected)?.id {
+                        selection = id
+                        vm.remove(by: selected)
+                    } else {
+                        vm.remove(by: selected)
+                        selection = vm.commands.last?.id
+                    }
                 }
             }
             
@@ -79,18 +99,16 @@ struct SettingsView: View {
                 NavigationLink(tag: command.id, selection: $selection) {
                     STLazyView(EditCommandView(command))
                 } label: {
-                    CommandCell(model: command)
-                    
+                    ZStack {
+                        CommandCell(model: command)
+                        VStack {
+                            Spacer()
+                            Divider()
+                                .frame(height: 0.5)
+                        }
+                    }
                 }.frame(height: 50)
-                Divider()
-                    .frame(height: 0.5)
             }
-            .onDeleteCommand(perform: {
-                guard let id = selection else {
-                    return
-                }
-                vm.remove(by: id)
-            })
             .onMoveCommand(perform: { direction in
                 guard let id = selection else {
                     return
@@ -111,6 +129,7 @@ struct SettingsView: View {
         }
     }
     
+    
     var body: some View {
         ZStack {
             VStack {
@@ -121,44 +140,7 @@ struct SettingsView: View {
             .padding()
             
             if let prompt = self.prompt {
-                VStack {
-                    HStack {
-                        Group {
-                            switch prompt {
-                            case .error(let string):
-                                Text(string)
-                                    .fontWeight(.medium)
-                            case .success(let string):
-                                Text(string)
-                                    .fontWeight(.medium)
-                            case .message(let string):
-                                Text(string)
-                                    .fontWeight(.medium)
-                            }
-                        }
-                        Spacer()
-                    }
-                    .font(.title)
-                    .multilineTextAlignment(.leading)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background({ () -> Color in
-                        switch prompt {
-                        case .error:
-                            return Color.red.opacity(0.8)
-                        case .success:
-                            return Color.green.opacity(0.8)
-                        case .message:
-                            return Color.gray.opacity(0.8)
-                        }
-                    }())
-                    .cornerRadius(8)
-                    Spacer()
-                }
-                .background(Color.black.opacity(0.8))
-                .onTapGesture {
-                    self.prompt = nil
-                }
+                promptView(prompt)
             }
             
         }
@@ -171,6 +153,57 @@ struct SettingsView: View {
             self.saveEvent()
         }
     }
+    
+}
+
+private extension SettingsView {
+
+    
+}
+
+private extension SettingsView {
+    
+    func promptView(_ prompt: SettingsView.Prompt) -> some View {
+    return VStack {
+        HStack {
+            Group {
+                switch prompt {
+                case .error(let string):
+                    Text(string)
+                        .fontWeight(.medium)
+                case .success(let string):
+                    Text(string)
+                        .fontWeight(.medium)
+                case .message(let string):
+                    Text(string)
+                        .fontWeight(.medium)
+                }
+            }
+            Spacer()
+        }
+        .font(.title)
+        .multilineTextAlignment(.leading)
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background({ () -> Color in
+            switch prompt {
+            case .error:
+                return Color.red.opacity(0.8)
+            case .success:
+                return Color.green.opacity(0.8)
+            case .message:
+                return Color.gray.opacity(0.8)
+            }
+        }())
+        .cornerRadius(8)
+        Spacer()
+    }
+    .background(Color.black.opacity(0.8))
+    .onTapGesture {
+        self.prompt = nil
+    }
+}
+
     
 }
 
