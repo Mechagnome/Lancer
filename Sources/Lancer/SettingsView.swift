@@ -22,18 +22,12 @@ extension NSTextView {
 
 struct SettingsView: View {
     
-    @ObservedObject
-    private var vm: MyCommands
-
     @State
     private var selection: UUID? = nil
 
-    let closeEvent: () -> Void
-    
-    init(_ vm: MyCommands, closeEvent: @escaping () -> Void) {
-        self.vm = vm
-        self.closeEvent = closeEvent
-    }
+    @ObservedObject
+    var vm: MyCommands
+    let saveEvent: () -> Void
     
     var body: some View {
         VStack {
@@ -76,40 +70,24 @@ struct SettingsView: View {
             Divider()
             
             HStack(alignment: .center) {
-                
-                HStack(spacing: 4.0) {
-                    SFSymbol.plus.convert()
-                        .font(.title3)
-                    Text("add")
-                        .font(.title2)
-                }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 2)
-                .background(Color.gray.opacity(0.5))
-                .cornerRadius(4)
-                .onTapGesture {
+
+                ActionButton(icon: .plus, name: "add") {
                     let command = vm.addCommand()
                     selection = command.value.id
                 }
                 
                 if let selected = selection {
-                    HStack(spacing: 4.0) {
-                        SFSymbol.trash.convert()
-                            .font(.title3)
-                        Text("delete")
-                            .font(.title2)
-                    }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 2)
-                    .background(Color.gray.opacity(0.5))
-                    .cornerRadius(4)
-                    .onTapGesture {
+                    ActionButton(icon: .trash, name: "delete") {
                         selection = vm.lastItem(by: selected)?.value.id
                         vm.remove(by: selected)
                     }
                 }
                 
                 Spacer()
+                
+                ActionButton(icon: .handThumbsup, name: "save") {
+                    self.saveEvent()
+                }
             }
             .padding()
             
@@ -120,7 +98,7 @@ struct SettingsView: View {
             self.selection = vm.commands.first?.value.id
         }
         .onDisappear {
-            self.closeEvent()
+            self.saveEvent()
         }
     }
     
@@ -266,7 +244,7 @@ struct MyCommandView_Previews: PreviewProvider {
         
         vm.commands.append(contentsOf: list)
         
-        return SettingsView(vm, closeEvent: {})
+        return SettingsView(vm: vm, saveEvent: {})
     }
     
 }

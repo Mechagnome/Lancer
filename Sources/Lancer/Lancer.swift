@@ -25,7 +25,7 @@ public class Lancer: AlliancesApp {
     
     public var settingsView: AnyView? {
         get {
-            return AnyView(SettingsView(self.vm, closeEvent: { [weak self] in
+            return AnyView(SettingsView(vm: self.vm, saveEvent: { [weak self] in
                 self?.saveAndReload()
             }))
         }
