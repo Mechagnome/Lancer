@@ -54,7 +54,7 @@ class CommandViewModel: ObservableObject, Identifiable {
         let output = context.run(bash: content)
         
         if output.succeeded {
-            return output.stdout
+            return output.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
         } else if output.stderror.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             try context.runAndPrint(bash: content)
         }
