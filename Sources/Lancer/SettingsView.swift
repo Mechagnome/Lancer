@@ -212,9 +212,9 @@ struct MyCommandView_Previews: PreviewProvider {
     static var previews: some View {
         let vm = MyCommands([])
         let list = (0...5)
-            .map({ Command(id: .init(),
+            .map({ try! Command(id: .init(),
                            title: "commands\($0)",
-                           folder: "/user",
+                           folder: .init(url: FilePath.Folder(sanbox: .cache).url),
                            content: "commands\($0)") })
             .map({ CommandViewModel($0) })
         

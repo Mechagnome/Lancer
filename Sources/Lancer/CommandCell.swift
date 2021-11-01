@@ -27,7 +27,7 @@ struct CommandCell: View {
                     Text(model.title)
                         .lineLimit(1)
                         .font(Font.system(size: 18, weight: .medium))
-                    Text("at: " + (model.folder?.path ?? ""))
+                    Text("at: " + (model.folder?.url.pathComponents.suffix(2).joined(separator: "/") ?? ""))
                         .lineLimit(1)
                         .font(Font.system(size: 12, weight: .light))
                 }
@@ -44,10 +44,10 @@ struct CommandCell: View {
 struct CommandCell_Previews: PreviewProvider {
     
     static var previews: some View {
-        let command = Command(id: .init(),
-                              title: "commands",
-                              folder: "/user",
-                              content: "commands")
+        let command = try! Command(id: .init(),
+                                   title: "commands",
+                                   folder: .init(url: FilePath.Folder(sanbox: .cache).url),
+                                   content: "commands")
         CommandCell(model:  .init(command))
     }
     

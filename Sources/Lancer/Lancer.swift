@@ -18,6 +18,7 @@ public class Lancer: AlliancesApp {
     
     required public init(_ configuration: AlliancesConfiguration) {
         self.configuration = configuration
+        
         self.tasks = vm.commands.map { vm in
             Task(configuration, viewModel: vm)
         }
@@ -55,7 +56,7 @@ struct Task: AlliancesApp {
     
     var name: String { viewModel.title }
     var remark: String? {
-        guard let path = viewModel.folder?.lastPathComponent else {
+        guard let path = viewModel.folder?.url.lastPathComponent else {
             return nil
         }
         return "at: \(path)"

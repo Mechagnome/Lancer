@@ -61,7 +61,7 @@ class MyCommands: ObservableObject {
     }
     
     func addTemplateCommand() -> CommandViewModel {
-        return add(Command(id: .init(), title: "Title", folder: nil, content: "Shell"), at: 0)
+        return add(Command(id: .init(), title: "Title", folder: nil, content: "echo '#1' >> test.txt"), at: 0)
     }
     
 }

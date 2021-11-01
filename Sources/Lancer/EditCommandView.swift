@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Stem
 
 struct EditCommandView: View {
     
@@ -22,7 +23,7 @@ struct EditCommandView: View {
         self.vm = vm
         self._title = .init(initialValue: vm.title)
         self._content = .init(initialValue: vm.content)
-        self._folder = .init(initialValue: vm.folder?.lastPathComponent ?? "")
+        self._folder = .init(initialValue: vm.folder?.url.lastPathComponent ?? "")
     }
     
     var body: some View {
@@ -51,11 +52,11 @@ struct EditCommandView: View {
                         panel.canChooseFiles = false
                         panel.canChooseDirectories = true
                         panel.allowsMultipleSelection = false
-                        panel.directoryURL = vm.folder
+                        panel.directoryURL = vm.folder?.url
                         
-                        if panel.runModal() == .OK {
-                            folder = panel.url?.lastPathComponent ?? ""
-                            vm.folder = panel.url
+                        if panel.runModal() == .OK, let url = panel.url {
+                            folder = url.pathComponents.suffix(2).joined(separator: "/")
+                            vm.folder = try! .init(url: url)
                         }
                     }
                     
@@ -97,10 +98,10 @@ struct EditCommandView: View {
 struct EditCommandView_Previews: PreviewProvider {
     
     static var previews: some View {
-        let command = Command(id: .init(),
-                              title: "commands",
-                              folder: "/user",
-                              content: "commands")
+        let command = try! Command(id: .init(),
+                                   title: "commands",
+                                   folder: .init(url: FilePath.Folder(sanbox: .cache).url),
+                                   content: "commands")
         return EditCommandView(.init(command))
     }
 }

@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import SwiftShell
+import AppKit
 
 class CommandViewModel: ObservableObject, Identifiable {
     
@@ -30,7 +31,7 @@ class CommandViewModel: ObservableObject, Identifiable {
     }
     
     @Published
-    var folder: URL? {
+    var folder: Command.Folder? {
         didSet {
             value.folder = folder
         }
@@ -47,8 +48,12 @@ class CommandViewModel: ObservableObject, Identifiable {
     @discardableResult
     func run() throws -> String {
         var context = CustomContext(main)
-        if let currentdirectory = self.folder?.path {
-            context.currentdirectory = currentdirectory
+        
+        if let folder = folder {
+            if let url = try? Command.Folder(bookmark: folder.bookmark).url,
+               url.startAccessingSecurityScopedResource() {
+                context.currentdirectory = url.path
+            }
         }
 
         let output = context.run(bash: content)
