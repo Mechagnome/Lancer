@@ -49,6 +49,14 @@ class CommandViewModel: ObservableObject, Identifiable {
     func run() throws -> String {
         var context = CustomContext(main)
         
+        let customPath = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin"
+        if var paths = context.env["PATH"]?.split(separator: ":") {
+            paths = customPath.split(separator: ":") + paths
+            context.env["PATH"] = Set(paths).joined(separator: ":")
+        } else {
+            context.env["PATH"] = customPath
+        }
+        
         if let folder = folder {
             if let url = try? Command.Folder(bookmark: folder.bookmark).url,
                url.startAccessingSecurityScopedResource() {
@@ -56,7 +64,7 @@ class CommandViewModel: ObservableObject, Identifiable {
             }
         }
 
-        let output = context.run(bash: content)
+        let output = context.run("/bin/zsh", "-c", content, combineOutput: false)
         
         if output.succeeded {
             return output.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
