@@ -181,7 +181,7 @@ private extension SettingsView {
             }
             Spacer()
         }
-        .font(.title)
+        .font(.body)
         .multilineTextAlignment(.leading)
         .frame(maxWidth: .infinity)
         .padding()

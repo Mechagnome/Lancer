@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import SwiftShell
 import AppKit
+import Stem
 
 class CommandViewModel: ObservableObject, Identifiable {
     
@@ -44,6 +45,9 @@ class CommandViewModel: ObservableObject, Identifiable {
         self.value = value
     }
     
+}
+
+extension CommandViewModel {
     
     @discardableResult
     func run() throws -> String {
@@ -63,16 +67,44 @@ class CommandViewModel: ObservableObject, Identifiable {
                 context.currentdirectory = url.path
             }
         }
-
+        
         let output = context.run("/bin/zsh", "-c", content, combineOutput: false)
         
         if output.succeeded {
             return output.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
-        } else if let error = output.error {
-            throw error
         } else {
-            return ""
+            try runTerminal()
+            return "success"
         }
+    }
+    
+    func runTerminal() throws {
+        
+        var commends = [String]()
+        
+        if let folder = folder {
+            commends.append("do script \"cd  \(folder.url.path)\" in front window")
+        }
+        
+        content.split(separator: "\n").forEach { str in
+            commends.append("do script \"\(str)\" in front window")
+        }
+        
+        let script = NSAppleScript(source: """
+       tell application "Terminal"
+       if not (exists window 1) then reopen
+       activate
+       \(commends.joined(separator: "\n"))
+       end tell
+       """)
+        
+        var error: NSDictionary?
+        script?.executeAndReturnError(&error)
+        if let message = error?["NSAppleScriptErrorBriefMessage"] as? String,
+           let code = error?["NSAppleScriptErrorNumber"] as? Int {
+            throw StemError(code: code, message: message)
+        }
+        
     }
     
 }
