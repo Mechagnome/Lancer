@@ -13,6 +13,7 @@ public class Lancer: AlliancesApp {
     public var name: String = "Lancer"
     
     public var tasks: [AlliancesApp] = []
+    public var remark: String?
     
     lazy var vm = MyCommands(configuration.settings["commends"] as? [Data] ?? [])
     
@@ -20,16 +21,16 @@ public class Lancer: AlliancesApp {
         self.configuration = configuration
         
         self.tasks = vm.commands.map { vm in
-            Task(configuration, viewModel: vm, isShowFolder: isShowFolder)
+            Task(configuration, viewModel: vm, isShowFolder: !isInOneFolder)
         }
         
-        if isShowFolder, let folder = vm.commands.first?.folder {
-            name = "Lancer" + folder.title
+        if isInOneFolder, let folder = vm.commands.first?.folder {
+            remark = folder.title
         }
         
     }
     
-    var isShowFolder: Bool {
+    var isInOneFolder: Bool {
         return Set(vm.commands.compactMap(\.folder?.title)).count == 1
     }
     
@@ -44,7 +45,7 @@ public class Lancer: AlliancesApp {
     func saveAndReload() {
         self.configuration.settings["commends"] = self.vm.dataForCache
         self.tasks = vm.commands.map { vm in
-            Task(configuration, viewModel: vm, isShowFolder: isShowFolder)
+            Task(configuration, viewModel: vm, isShowFolder: !isInOneFolder)
         }
         self.reload()
     }
