@@ -48,11 +48,11 @@ struct EditCommandView: View {
                 
                 HStack(alignment: .center, spacing: 12.0) {
                     Button("Select") {
-                        vm.selectInFinder()
+                        folder = vm.selectInFinder()?.title ?? ""
                     }
                     
-                    if let folder = vm.folder {
-                        Text(folder.title)
+                    if folder.isEmpty == false {
+                        Text(folder)
                     }
                     Spacer()
                 }

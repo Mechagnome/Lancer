@@ -63,8 +63,8 @@ extension CommandViewModel {
         return nil
     }
     
-    func selectInFinder() {
-        _ = Self.selectInFinder(at: folder?.url)
+    func selectInFinder() -> Command.Folder? {
+        return Self.selectInFinder(at: folder?.url)
     }
     
 }

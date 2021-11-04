@@ -80,6 +80,22 @@ extension MyCommands {
         })
     }
     
+    func moveToUp(by id: UUID?) {
+        guard let id = id, let index = index(by: id) else {
+            return
+        }
+        
+        commands.swapAt(index, max(index - 1, 0))
+    }
+    
+    func moveToDown(by id: UUID?) {
+        guard let id = id, let index = index(by: id) else {
+            return
+        }
+        
+        commands.swapAt(index, min(index + 1, commands.count-1))
+    }
+    
     func item(by id: UUID) -> CommandViewModel? {
         commands.first { vm in
             vm.id == id

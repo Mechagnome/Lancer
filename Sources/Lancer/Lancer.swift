@@ -20,8 +20,17 @@ public class Lancer: AlliancesApp {
         self.configuration = configuration
         
         self.tasks = vm.commands.map { vm in
-            Task(configuration, viewModel: vm)
+            Task(configuration, viewModel: vm, isShowFolder: isShowFolder)
         }
+        
+        if isShowFolder, let folder = vm.commands.first?.folder {
+            name = "Lancer" + folder.title
+        }
+        
+    }
+    
+    var isShowFolder: Bool {
+        return Set(vm.commands.compactMap(\.folder?.title)).count == 1
     }
     
     public var settingsView: AnyView? {
@@ -35,7 +44,7 @@ public class Lancer: AlliancesApp {
     func saveAndReload() {
         self.configuration.settings["commends"] = self.vm.dataForCache
         self.tasks = vm.commands.map { vm in
-            Task(configuration, viewModel: vm)
+            Task(configuration, viewModel: vm, isShowFolder: isShowFolder)
         }
         self.reload()
     }
@@ -55,18 +64,17 @@ struct Task: AlliancesApp {
     var canOpenSettings: Bool = false
     
     var name: String { viewModel.title }
-    var remark: String? {
-        guard let path = viewModel.folder?.url.lastPathComponent else {
-            return nil
-        }
-        return "at: \(path)"
-    }
     
+    var remark: String?
     let viewModel: CommandViewModel
     
-    init(_ configuration: AlliancesConfiguration, viewModel: CommandViewModel) {
+    init(_ configuration: AlliancesConfiguration, viewModel: CommandViewModel, isShowFolder: Bool) {
         self.configuration = configuration
         self.viewModel = viewModel
+        if isShowFolder, let folder = viewModel.folder {
+            self.remark = "at: \(folder.title)"
+
+        }
     }
     
     init(_ configuration: AlliancesConfiguration) {

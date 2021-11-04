@@ -41,27 +41,30 @@ struct SettingsView: View {
     
     var toolbar: some View {
         HStack(alignment: .center) {
-            ActionButton(icon: .plus, name: "add") {
-                let command = vm.addTemplateCommand()
-                selection = nil
-                Gcd.delay(seconds: 0.1) {
-                    selection = command.id
-                }
-            }
-            
             if let selected = selection {
-                ActionButton(icon: .docOnDoc, name: "copy") {
+                ActionButton(icon: .arrowUp, name: "") {
+                    vm.moveToUp(by: selected)
+                    Gcd.delay(seconds: 0.001) {
+                        selection = selected
+                    }
+                }
+                
+                ActionButton(icon: .arrowDown, name: "") {
+                    vm.moveToDown(by: selected)
+                }
+                
+                ActionButton(icon: .docOnDoc, name: "Copy") {
                     guard var item = vm.item(by: selected)?.value,
                           let index = vm.index(by: selected) else { return }
                     item.title = item.title + "-copy"
                     item.id = .init()
                     self.selection = item.id
-                    Gcd.delay(seconds: 0.1) {
+                    Gcd.delay(seconds: 0.001) {
                         _ = vm.add(item, at: index)
                     }
                 }
                 
-                ActionButton(icon: .trash, name: "delete") {
+                ActionButton(icon: .trash, name: "Delete") {
                     if let id = vm.nextItem(by: selected)?.id {
                         selection = id
                         vm.remove(by: selected)
@@ -75,7 +78,7 @@ struct SettingsView: View {
             Spacer()
 
             if let selected = selection {
-                ActionButton(icon: .play, name: "run") {
+                ActionButton(icon: .play, name: "Run") {
                     do {
                         guard let str = try vm.item(by: selected)?.run() else {
                             return
@@ -87,7 +90,7 @@ struct SettingsView: View {
                 }
             }
             
-            ActionButton(icon: .handThumbsup, name: "save") {
+            ActionButton(icon: .handThumbsup, name: "Save") {
                 self.saveEvent()
             }
         }
@@ -120,20 +123,28 @@ struct SettingsView: View {
             .frame(minWidth: 220)
             .buttonStyle(PlainButtonStyle())
         }
+        
     }
     
     var navigationView: some View {
         HStack {
+            ActionButton(icon: .plus, name: "") {
+                let command = vm.addTemplateCommand()
+                selection = nil
+                Gcd.delay(seconds: 0.001) {
+                    selection = command.id
+                }
+            }
             Spacer()
             if vm.commands.isEmpty == false {
-                ActionButton(icon: .folder, name: "set folders") {
+                ActionButton(icon: .folder, name: "Set Folders") {
                     vm.setFindersForAllCommands()
                 }
             }
-            ActionButton(icon: .squareAndArrowDown, name: "import") {
+            ActionButton(icon: .squareAndArrowDown, name: "Import") {
                 vm.importFromFinder()
             }
-            ActionButton(icon: .squareAndArrowUp, name: "share") {
+            ActionButton(icon: .squareAndArrowUp, name: "Share") {
                 vm.share()
             }
         }
@@ -144,6 +155,7 @@ struct SettingsView: View {
             HStack {
                 VStack {
                     navigationView
+                    Divider()
                     content
                     Divider()
                     toolbar
@@ -161,8 +173,7 @@ struct SettingsView: View {
             }
             
         }
-
-        .frame(minWidth: 820, minHeight: 600)
+        .frame(minHeight: 600)
         .onAppear {
             self.selection = vm.commands.first?.id
         }

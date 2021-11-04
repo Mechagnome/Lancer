@@ -21,8 +21,10 @@ struct ActionButton: View {
         HStack(spacing: 4.0) {
             icon.convert()
                 .font(.title3)
-            Text(name)
-                .font(.title2)
+            if name.isEmpty == false {
+                Text(name)
+                    .font(.title2)
+            }
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 2)
