@@ -126,14 +126,6 @@ extension CommandViewModel {
            let code = error?["NSAppleScriptErrorNumber"] as? Int {
             throw StemError(code: code, message: message)
         }
-        
-        let quitScript = NSAppleScript(source: """
-       tell application "Terminal"
-       quit
-       end tell
-       """)
-        
-        quitScript?.executeAndReturnError(&error)
     }
     
 }
