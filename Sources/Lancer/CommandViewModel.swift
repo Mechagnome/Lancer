@@ -117,6 +117,7 @@ extension CommandViewModel {
        if not (exists window 1) then reopen
        activate
        \(commends.joined(separator: "\n"))
+       quit
        end tell
        """)
         
