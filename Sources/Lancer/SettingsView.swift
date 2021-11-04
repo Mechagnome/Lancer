@@ -99,14 +99,7 @@ struct SettingsView: View {
                 NavigationLink(tag: command.id, selection: $selection) {
                     STLazyView(EditCommandView(command))
                 } label: {
-                    ZStack {
-                        CommandCell(model: command)
-                        VStack {
-                            Spacer()
-                            Divider()
-                                .frame(height: 0.5)
-                        }
-                    }
+                    CommandCell(model: command)
                 }.frame(height: 50)
             }
             .onMoveCommand(perform: { direction in
@@ -129,13 +122,37 @@ struct SettingsView: View {
         }
     }
     
+    var navigationView: some View {
+        HStack {
+            Spacer()
+            if vm.commands.isEmpty == false {
+                ActionButton(icon: .folder, name: "set folders") {
+                    vm.setFindersForAllCommands()
+                }
+            }
+            ActionButton(icon: .squareAndArrowDown, name: "import") {
+                vm.importFromFinder()
+            }
+            ActionButton(icon: .squareAndArrowUp, name: "share") {
+                vm.share()
+            }
+        }
+    }
     
     var body: some View {
         ZStack {
-            VStack {
-                content
+            HStack {
+                VStack {
+                    navigationView
+                    content
+                    Divider()
+                    toolbar
+                }
+                .frame(minWidth: 600)
                 Divider()
-                toolbar
+                SuggestionView(groups: Suggestion.groups) { command in
+                   _ = vm.add(command, at: 0)
+                }
             }
             .padding()
             
@@ -145,7 +162,7 @@ struct SettingsView: View {
             
         }
 
-        .frame(minWidth: 600, minHeight: 400)
+        .frame(minWidth: 820, minHeight: 600)
         .onAppear {
             self.selection = vm.commands.first?.id
         }

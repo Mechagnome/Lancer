@@ -48,20 +48,11 @@ struct EditCommandView: View {
                 
                 HStack(alignment: .center, spacing: 12.0) {
                     Button("Select") {
-                        let panel = NSOpenPanel()
-                        panel.canChooseFiles = false
-                        panel.canChooseDirectories = true
-                        panel.allowsMultipleSelection = false
-                        panel.directoryURL = vm.folder?.url
-                        
-                        if panel.runModal() == .OK, let url = panel.url {
-                            folder = url.pathComponents.suffix(2).joined(separator: "/")
-                            vm.folder = try! .init(url: url)
-                        }
+                        vm.selectInFinder()
                     }
                     
-                    if folder.isEmpty == false {
-                        Text(folder)
+                    if let folder = vm.folder {
+                        Text(folder.title)
                     }
                     Spacer()
                 }

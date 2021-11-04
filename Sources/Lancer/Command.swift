@@ -14,6 +14,8 @@ struct Command: Codable, Equatable, Identifiable {
         let url: URL
         let bookmark: Data
         
+        var title: String { url.pathComponents.suffix(2).joined(separator: "/") }
+        
         init(url: URL) throws {
             self.bookmark = try url.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
             self.url = url
@@ -42,6 +44,10 @@ struct Command: Codable, Equatable, Identifiable {
         self.title = title
         self.folder = folder
         self.content = content
+    }
+    
+    init(data: Data) throws {
+      self = try JSONDecoder().decode(Command.self, from: data)
     }
     
     var encodeData: Data {

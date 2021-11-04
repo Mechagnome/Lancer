@@ -49,6 +49,28 @@ class CommandViewModel: ObservableObject, Identifiable {
 
 extension CommandViewModel {
     
+    static func selectInFinder(at url: URL?) -> Command.Folder? {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.directoryURL = url
+        
+        if panel.runModal() == .OK, let url = panel.url {
+            return try! .init(url: url)
+        }
+        
+        return nil
+    }
+    
+    func selectInFinder() {
+        _ = Self.selectInFinder(at: folder?.url)
+    }
+    
+}
+
+extension CommandViewModel {
+    
     @discardableResult
     func run() throws -> String {
         var context = CustomContext(main)
