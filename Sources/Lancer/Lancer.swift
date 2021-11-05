@@ -19,15 +19,7 @@ public class Lancer: AlliancesApp {
     
     required public init(_ configuration: AlliancesConfiguration) {
         self.configuration = configuration
-        
-        self.tasks = vm.commands.map { vm in
-            Task(configuration, viewModel: vm, isShowFolder: !isInOneFolder)
-        }
-        
-        if isInOneFolder, let folder = vm.commands.first?.folder {
-            self.remark = "at: \(folder.title)"
-        }
-        
+        reloadUI()
     }
     
     var isInOneFolder: Bool {
@@ -44,9 +36,20 @@ public class Lancer: AlliancesApp {
     
     func saveAndReload() {
         self.configuration.settings["commends"] = self.vm.dataForCache
+        self.reloadUI()
+    }
+    
+    func reloadUI() {
         self.tasks = vm.commands.map { vm in
             Task(configuration, viewModel: vm, isShowFolder: !isInOneFolder)
         }
+        
+        if isInOneFolder, let folder = vm.commands.first?.folder {
+            self.remark = "at: \(folder.title)"
+        } else {
+            self.remark = nil
+        }
+        
         self.reload()
     }
     

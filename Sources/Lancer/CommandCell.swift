@@ -29,9 +29,11 @@ struct CommandCell: View {
                             .lineLimit(1)
                             .font(Font.system(size: 18, weight: .medium))
                         if let folder = model.folder {
-                            Text("at: \(folder.title)")
+                            Text(model.folderNeedsReselected ? "重新选择文件夹" : "at: \(folder.title)")
                                 .lineLimit(1)
+                                .multilineTextAlignment(.leading)
                                 .font(Font.system(size: 12, weight: .light))
+                                .background(model.folderNeedsReselected ? Color.red : Color.clear)
                         }
                         
                     }

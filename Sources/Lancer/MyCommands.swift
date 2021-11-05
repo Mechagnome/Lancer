@@ -51,7 +51,9 @@ extension MyCommands {
         self.commands.append(contentsOf: list.map({ item in
             var item = item
             item.id = .init()
-            return .init(item)
+            let vm = CommandViewModel(item)
+            vm.folderNeedsReselected = item.folder != nil
+            return vm
         }))
     }
     
@@ -66,6 +68,7 @@ extension MyCommands {
         }
         commands = commands.map({ vm in
             vm.folder = folder
+            vm.folderNeedsReselected = false
             return vm
         })
     }

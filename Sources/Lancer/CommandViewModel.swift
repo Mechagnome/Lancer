@@ -31,6 +31,10 @@ class CommandViewModel: ObservableObject, Identifiable {
         }
     }
     
+    /// 重置文件夹
+    @Published
+    var folderNeedsReselected: Bool = false
+    
     @Published
     var folder: Command.Folder? {
         didSet {
@@ -67,6 +71,7 @@ extension CommandViewModel {
         guard let folder = try? Self.selectInFinder(at: folder?.url) else {
             return self.folder
         }
+        self.folderNeedsReselected = false
         self.folder = folder
         return folder
     }
