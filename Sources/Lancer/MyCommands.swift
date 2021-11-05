@@ -61,7 +61,7 @@ extension MyCommands {
 extension MyCommands {
     
     func setFindersForAllCommands() {
-        guard let folder = CommandViewModel.selectInFinder(at: nil) else {
+        guard let folder = try? CommandViewModel.selectInFinder(at: nil) else {
             return
         }
         commands = commands.map({ vm in

@@ -49,7 +49,7 @@ class CommandViewModel: ObservableObject, Identifiable {
 
 extension CommandViewModel {
     
-    static func selectInFinder(at url: URL?) -> Command.Folder? {
+    static func selectInFinder(at url: URL?) throws -> Command.Folder? {
         let panel = NSOpenPanel()
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
@@ -57,14 +57,18 @@ extension CommandViewModel {
         panel.directoryURL = url
         
         if panel.runModal() == .OK, let url = panel.url {
-            return try! .init(url: url)
+            return try .init(url: url)
         }
         
         return nil
     }
     
     func selectInFinder() -> Command.Folder? {
-        return Self.selectInFinder(at: folder?.url)
+        guard let folder = try? Self.selectInFinder(at: folder?.url) else {
+            return self.folder
+        }
+        self.folder = folder
+        return folder
     }
     
 }

@@ -25,7 +25,7 @@ public class Lancer: AlliancesApp {
         }
         
         if isInOneFolder, let folder = vm.commands.first?.folder {
-            remark = folder.title
+            self.remark = "at: \(folder.title)"
         }
         
     }
@@ -74,7 +74,6 @@ struct Task: AlliancesApp {
         self.viewModel = viewModel
         if isShowFolder, let folder = viewModel.folder {
             self.remark = "at: \(folder.title)"
-
         }
     }
     
